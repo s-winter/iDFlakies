@@ -13,6 +13,7 @@ import edu.illinois.cs.dt.tools.runner.data.DependentTest;
 import edu.illinois.cs.dt.tools.runner.data.DependentTestList;
 import edu.illinois.cs.testrunner.data.results.TestRunResult;
 import edu.illinois.cs.testrunner.runner.Runner;
+import edu.illinois.cs.testrunner.configuration.Configuration;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -149,17 +150,20 @@ public abstract class ExecutingDetector implements Detector, VerbosePrinter {
             final double elapsed = previousStopTimeMs - startTimeMs;
             final double totalElapsed = (System.currentTimeMillis() - origStartTimeMs) / 1000.0;
             final double estimate = elapsed / (i + 1) * (rounds - i - 1) / 1000;
-
+	    
             if (!round.filteredTests().dts().isEmpty()) {
+		i = Configuration.config().getProperty("detector.roundsemantics.total") ? i++ : 0;
                 System.out.print(String.format("\r[INFO] Found %d tests in round %d of %d (%.1f seconds elapsed (%.1f total), %.1f seconds remaining).\n",
-                        round.filteredTests().size(), i + 1, rounds, elapsed / 1000, totalElapsed, estimate));
+                        round.filteredTests().size(), i, rounds, elapsed / 1000, totalElapsed, estimate));
                 result.addAll(round.filteredTests().dts());
-                i = 0;
                 startTimeMs = System.currentTimeMillis();
             } else {
-                System.out.print(String.format("\r[INFO] Found %d tests in round %d of %d (%.1f seconds elapsed (%.1f total), %.1f seconds remaining)",
-                        round.filteredTests().size(), i + 1, rounds, elapsed / 1000, totalElapsed, estimate));
-                i++;
+		if (Configuration.config().getProperty("detector.roundsemantics.total"))
+		    System.out.print(String.format("\r[INFO] Found %d tests in round %d of %d (%.1f seconds elapsed (%.1f total), %.1f seconds remaining).\n",
+						   round.filteredTests().size(), i++, rounds, elapsed / 1000, totalElapsed, estimate));
+		else
+		    System.out.print(String.format("\r[INFO] Found %d tests in round %d of %d (%.1f seconds elapsed (%.1f total), %.1f seconds remaining).",
+						   round.filteredTests().size(), i++, rounds, elapsed / 1000, totalElapsed, estimate));
             }
 
             absoluteRound.incrementAndGet();
