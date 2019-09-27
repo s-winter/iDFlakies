@@ -50,7 +50,7 @@ public abstract class ExecutingDetector implements Detector, VerbosePrinter {
     }
 
     public DetectionRound makeDts(final TestRunResult intended, final TestRunResult revealed) {
-        final List<DependentTest> result = DetectorUtil.flakyTests(intended, revealed, true);
+        final List<DependentTest> result = DetectorUtil.flakyTests(intended, revealed, false);
 
         return new DetectionRound(Collections.singletonList(revealed.id()),
                 result,
@@ -158,8 +158,8 @@ public abstract class ExecutingDetector implements Detector, VerbosePrinter {
                 result.addAll(round.filteredTests().dts());
 		if (!roundsAreTotal){
 		    i = 0;
+		    startTimeMs = System.currentTimeMillis();
 		}
-                startTimeMs = System.currentTimeMillis();
             } else {
 		if (roundsAreTotal)
 		    System.out.print(String.format("\r[INFO] Found %d tests in round %d of %d (%.1f seconds elapsed (%.1f total), %.1f seconds remaining).\n",
@@ -168,7 +168,6 @@ public abstract class ExecutingDetector implements Detector, VerbosePrinter {
 		    System.out.print(String.format("\r[INFO] Found %d tests in round %d of %d (%.1f seconds elapsed (%.1f total), %.1f seconds remaining).",
 						   round.filteredTests().size(), ++i, rounds, elapsed / 1000, totalElapsed, estimate));
             }
-
             absoluteRound.incrementAndGet();
         }
 
