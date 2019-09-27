@@ -6,26 +6,10 @@ FROM ubuntu:16.04
 # Install sofware properties common
 RUN \
   apt-get update && \
-  apt-get install -y software-properties-common && \
-# Install openJDK8
-  apt-get update && \
-  apt-get install -y openjdk-8-jdk && \
-# Install prolog
+  apt-get install -y software-properties-common openjdk-8-jdk git python python-dev python-pip python-virtualenv sudo vim wget moreutils time && \
   apt-add-repository ppa:swi-prolog/stable && \
   apt-get update && \
-  apt-get install -y swi-prolog && \
-# Install git
-  apt-get install -y git && \
-  git --version && \
-# Install python
-  apt-get update && \
-  apt-get install -y python python-dev python-pip python-virtualenv && \
-  rm -rf /var/lib/apt/lists/* && \
-# Install misc
-  apt-get update && \
-  apt-get install -y sudo && \
-  apt-get install -y vim && \
-  apt-get install -y wget
+  apt-get install -y swi-prolog
 
 # Use openJDK8 as default
 ENV JAVA_HOME /usr/lib/jvm/java-8-openjdk-amd64/

@@ -29,22 +29,19 @@ slug=$1
 rounds=$2
 timeout=$3
 
-git rev-parse HEAD
-date
-
 # Update all tooling
-su - "$SCRIPT_USERNAME" -c "cd /home/$SCRIPT_USERNAME/$TOOL_REPO/; git pull"
+# su - "$SCRIPT_USERNAME" -c "cd /home/$SCRIPT_USERNAME/$TOOL_REPO/; git pull"
 
-echo "*******************IDFLAKIES DEBUG************************"
-echo "Running update.sh"
-date
-su - "$SCRIPT_USERNAME" -c "/home/$SCRIPT_USERNAME/$TOOL_REPO/scripts/docker/update.sh"
+# echo "*******************IDFLAKIES DEBUG************************"
+# echo "Running update.sh"
+# date
+# su - "$SCRIPT_USERNAME" -c "/home/$SCRIPT_USERNAME/$TOOL_REPO/scripts/docker/update.sh"
 
 # Copy the test time log, if it is in the old location. Probably can remove this line if all containers are new.
 
-if [[ -e "/home/$SCRIPT_USERNAME/mvn-test-time.log" ]] && [[ ! -e "/home/$SCRIPT_USERNAME/$slug/mvn-test-time.log" ]]; then
-    cp "/home/$SCRIPT_USERNAME/mvn-test-time.log" "/home/$SCRIPT_USERNAME/$slug"
-fi
+# if [[ -e "/home/$SCRIPT_USERNAME/mvn-test-time.log" ]] && [[ ! -e "/home/$SCRIPT_USERNAME/$slug/mvn-test-time.log" ]]; then
+#     cp "/home/$SCRIPT_USERNAME/mvn-test-time.log" "/home/$SCRIPT_USERNAME/$slug"
+# fi
 
 # Start the script using the $SCRIPT_USERNAME user
 su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${rounds} ${timeout}"
