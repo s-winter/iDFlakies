@@ -52,9 +52,13 @@ public abstract class ExecutingDetector implements Detector, VerbosePrinter {
     public DetectionRound makeDts(final TestRunResult intended, final TestRunResult revealed) {
         final List<DependentTest> result = DetectorUtil.flakyTests(intended, revealed, false);
 
+	System.out.print(String.format("[DEBUG] makeDts: flakyTests returned %d items.\n",result.size()));
+	List<DependentTest> filtered = filter(result, absoluteRound.get()).collect(Collectors.toList());
+	System.out.print(String.format("[DEBUG] After filtering %d items remain.\n",filtered.size()));
+
         return new DetectionRound(Collections.singletonList(revealed.id()),
                 result,
-                filter(result, absoluteRound.get()).collect(Collectors.toList()),
+                filtered,
                 stopwatch.elapsed(TimeUnit.NANOSECONDS) / 1E9);
     }
 
