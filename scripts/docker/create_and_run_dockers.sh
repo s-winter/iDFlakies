@@ -76,12 +76,12 @@ for line in $(cat ${projfile}); do
 	for hash in $(docker ps -q); do docker kill $hash; echo "Container $hash killed."; done
 	export SYSFSRESULTS_DIR=$SCRIPT_DIR/sysfsresults/$modifiedslug
 	./wait_for_docker_completion.sh &
-	if [ $THROTTLING_NIC = 'ON' ]
+	if [ "$THROTTLING_NIC" = 'ON' ]
 	then
 	    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
 	fi
         docker run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${script}" # |ts "[ %F %H:%M:%.S ]"
-	if [ $THROTTLING_NIC = 'ON' ]
+	if [ "$THROTTLING_NIC" = 'ON' ]
 	then
 	    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper clear $i; done
 	fi
