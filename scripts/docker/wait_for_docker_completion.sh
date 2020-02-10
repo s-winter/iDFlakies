@@ -12,7 +12,7 @@ echo "************* Collecting sysfs performance data *************"
 
 mkdir -p $SYSFSRESULTS_DIR
 
-dockerHash=$(docker ps -q --no-trunc)
+dockerHash=$(podman ps -q --no-trunc)
 
 # get memory stats
 

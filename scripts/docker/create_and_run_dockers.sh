@@ -25,9 +25,9 @@ echo "Making base image"
 date
 
 # Create base Docker image if does not exist
-docker inspect detectorbase:latest > /dev/null 2>&1
-if  [ $?  == 1 ]; then
-    docker build -t detectorbase:latest - < baseDockerfile
+podman inspect detectorbase:latest > /dev/null 2>&1
+if  [ $?  != 0 ]; then
+    podman build -t detectorbase:latest - < baseDockerfile
 fi
 
 echo "*******************IDFLAKIES DEBUG************************"
@@ -35,9 +35,9 @@ echo "Making tooling image"
 date
 
 # Create tooling Docker image if does not exist
-docker inspect toolingdetectorbase:latest > /dev/null 2>&1
-if  [ $?  == 1 ]; then
-    docker build -t toolingdetectorbase:latest - < toolingDockerfile
+podman inspect toolingdetectorbase:latest > /dev/null 2>&1
+if  [ $?  != 0 ]; then
+    podman build -t toolingdetectorbase:latest - < toolingDockerfile
 fi
 
 # For each project,sha, make a Docker image for it
@@ -50,8 +50,8 @@ for line in $(cat ${projfile}); do
     # Build the Docker image if does not exist
     modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
     image=detector-${modifiedslug}:latest
-    docker inspect ${image} > /dev/null 2>&1
-    if [ $? == 1 ]; then
+    podman inspect ${image} > /dev/null 2>&1
+    if [ $? != 0 ]; then
         echo "*******************IDFLAKIES DEBUG************************"
         echo "Building docker image for project"
         date
@@ -59,7 +59,7 @@ for line in $(cat ${projfile}); do
     fi
 
     # Run the Docker image if it exists
-    docker inspect ${image} > /dev/null 2>&1
+    podman inspect ${image} > /dev/null 2>&1
     if [ $? == 1 ]
     then
         echo "${image} NOT BUILT PROPERLY, LIKELY TESTS FAILED"
@@ -73,14 +73,16 @@ for line in $(cat ${projfile}); do
 	mkfifo --mode=777 SCRIPTEND
 	mkfifo --mode=777 DATAREAD
 	# kill any running docker containers before running this one
-	for hash in $(docker ps -q); do docker kill $hash; echo "Container $hash killed."; done
+	for hash in $(podman ps -q); do podman kill $hash; echo "Container $hash killed."; done
 	export SYSFSRESULTS_DIR=$SCRIPT_DIR/sysfsresults/$modifiedslug
 	./wait_for_docker_completion.sh &
 	if [ "$THROTTLING_NIC" = 'ON' ]
 	then
 	    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
 	fi
-        docker run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${script}" # |ts "[ %F %H:%M:%.S ]"
+#        podman run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${script}" # |ts "[ %F %H:%M:%.S ]"
+	        podman run -t --rm ${THROTTLING_MEM} ${THROTTLING_SWAP} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${script}" # |ts "[ %F %H:%M:%.S ]"
+	echo "podman run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc \"/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${script}\""
 	if [ "$THROTTLING_NIC" = 'ON' ]
 	then
 	    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper clear $i; done
