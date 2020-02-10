@@ -14,8 +14,8 @@ export THROTTLING_READ_IOPS='--device-read-iops=/dev/sda:10'
 export THROTTLING_WRITE_IOPS='--device-write-iops=/dev/sda:10'
 
 # blkio throughput throttling (useful for workloads with large files)
-export THROTTLING_READ_BPS='--device-read-bps=/dev/sda:1k'
-export THROTTLING_WRITE_BPS='--device-write-bps=/dev/sda:1k'
+export THROTTLING_READ_BPS='--device-read-bps=/dev/sda:1kb'
+export THROTTLING_WRITE_BPS='--device-write-bps=/dev/sda:1kb'
 
 # network throttling
 export THROTTLING_NIC='ON'

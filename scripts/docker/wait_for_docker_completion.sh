@@ -6,13 +6,16 @@
 # The other ends of the pipes are read/written in the sw_run_project.sh script, i.e., for this to work that script needs to be passed to create_and_run_dockers.sh as the script to run inside docker.
 # This mechanism currently assumes that only one docker container is running at a time. This assumption is enforced in the create_and_run_dockers.sh script.
 
-cat <SCRIPTEND >/dev/null
+[ $1 == "" ] || [ $2 == "" ] && { echo "arg1 - Name of docker image tag"; echo "arg2 - Modified Slug"; exit 1; }
+image=$1
+
+cat <SCRIPTEND_${image} >/dev/null
 
 echo "************* Collecting sysfs performance data *************"
 
-mkdir -p $SYSFSRESULTS_DIR
+mkdir -p $SYSFSRESULTS_DIR_${modifiedslug}
 
-dockerHash=$(docker ps -q --no-trunc)
+dockerHash=$(docker ps --no-trunc | grep ${image} | tr -s ' ' | cut -d' ' -f1)
 
 # get memory stats
 
@@ -51,7 +54,7 @@ sudo rm /var/run/netns/$dockerHash
 
 echo "************* Finished performance data collection  *************"
 
-echo </dev/null >DATAREAD
+echo </dev/null >DATAREAD_${image}
 
-rm SCRIPTEND
-rm DATAREAD
+rm SCRIPTEND_${image}
+rm DATAREAD_{image}

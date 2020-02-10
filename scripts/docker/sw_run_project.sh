@@ -7,22 +7,24 @@ date
 
 # This script is run inside the Docker image, for single experiment (one project)
 
-if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
+if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]] || [[ $4 == "" ]]; then
     echo "arg1 - GitHub SLUG"
     echo "arg2 - Number of rounds"
     echo "arg3 - Timeout in seconds"
+    echo "arg4 - docker image name"
     exit
 fi
-
-# the following named pipes are used for synchronization with the host
-# right before the script ends, SCRIPTEND is signaled by the script running inside the container
-# then the host reads cgroup accounting data from sysfs and signals DATAREAD to indicate that the script can finish
-[ -w /Scratch/SCRIPTEND ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
-[ -r /Scratch/DATAREAD ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
 
 slug=$1
 rounds=$2
 timeout=$3
+image=$4
+
+# the following named pipes are used for synchronization with the host
+# right before the script ends, SCRIPTEND is signaled by the script running inside the container
+# then the host reads cgroup accounting data from sysfs and signals DATAREAD to indicate that the script can finish
+[ -w /Scratch/SCRIPTEND_${image} ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
+[ -r /Scratch/DATAREAD_${image} ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
 
 # Incorporate tooling into the project, using Java XML parsing
 cd "/home/$SCRIPT_USERNAME/${slug}"
@@ -93,5 +95,5 @@ echo "Finished run_project.sh"
 date
 
 # synchronization with docker host; see top of this file where existence of these pipes is checked for more details
-echo </dev/null >/Scratch/SCRIPTEND
-cat </Scratch/DATAREAD >/dev/null
+echo </dev/null >/Scratch/SCRIPTEND_${image}
+cat </Scratch/DATAREAD_${image} >/dev/null
