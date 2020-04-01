@@ -16,7 +16,6 @@ timeout=$3
 script="$4"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-echo "CPUFRAC: $CPUFRAC"
 
 # For each project,sha, make a Docker image for it
 for line in $(cat ${projfile}); do
@@ -41,9 +40,10 @@ for line in $(cat ${projfile}); do
 	# kill any running docker container for the same image before running this one
 	containerHash=$(docker ps | grep ${image} | tr -s ' ' | cut -d' ' -f1)
 	[ "${containerHash}" == "" ] || docker kill ${containerHash}
-	export SYSFSRESULTS_DIR_${modifiedlug}=$SCRIPT_DIR/sysfsresults/$modifiedslug
+	#export SYSFSRESULTS_DIR_${modifiedlug}=$SCRIPT_DIR/sysfsresults/$modifiedslug
+	export SYSFSRESULTS_DIR=$SCRIPT_DIR/sysfsresults/$modifiedslug
 	./wait_for_docker_completion.sh ${image} ${modifiedslug} &
-
+	echo "Running with ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS}"
         docker run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${image} ${script}" # |ts "[ %F %H:%M:%.S ]"
     fi
 done

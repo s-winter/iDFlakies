@@ -13,19 +13,20 @@ cat <SCRIPTEND_${image} >/dev/null
 
 echo "************* Collecting sysfs performance data *************"
 
-mkdir -p $SYSFSRESULTS_DIR_${modifiedslug}
+mkdir -p $SYSFSRESULTS_DIR
+#_${modifiedslug}
 
 dockerHash=$(docker ps --no-trunc | grep ${image} | tr -s ' ' | cut -d' ' -f1)
 
 # get memory stats
 
-mkdir $SYSFSRESULTS_DIR/memory
-cp /sys/fs/cgroup/memory/docker/$dockerHash/* $SYSFSRESULTS_DIR/memory
+mkdir -p $SYSFSRESULTS_DIR/memory
+sudo cp /sys/fs/cgroup/memory/docker/$dockerHash/* $SYSFSRESULTS_DIR/memory
 
 # get CPU stats
 
-mkdir $SYSFSRESULTS_DIR/cpu
-cp /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash/* $SYSFSRESULTS_DIR/cpu
+mkdir -p $SYSFSRESULTS_DIR/cpu
+sudo cp /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash/* $SYSFSRESULTS_DIR/cpu
 
 # if you prefer a single file with all the data, try the following:
 # for f in $(ls /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash); do echo "$f: $(cat $f | sed -e 'H;${x;s/\n/,/g;s/^,//;p;};d')" >>$SYSFSRESULTS_DIR/cpustats.txt; done
@@ -33,8 +34,8 @@ cp /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash/* $SYSFSRESULTS_DIR/cpu
 
 # get blkio stats
 
-mkdir $SYSFSRESULTS_DIR/blkio
-cp /sys/fs/cgroup/blkio/docker/$dockerHash/* $SYSFSRESULTS_DIR/blkio
+mkdir -p $SYSFSRESULTS_DIR/blkio
+sudo cp /sys/fs/cgroup/blkio/docker/$dockerHash/* $SYSFSRESULTS_DIR/blkio
 
 # get NIC stats
 # We can get all RX and TX register values from the docker container's virtual NIC: https://docs.docker.com/config/containers/runmetrics/#network-metrics
@@ -57,4 +58,4 @@ echo "************* Finished performance data collection  *************"
 echo </dev/null >DATAREAD_${image}
 
 rm SCRIPTEND_${image}
-rm DATAREAD_{image}
+rm DATAREAD_${image}
