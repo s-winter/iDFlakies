@@ -16,9 +16,7 @@ timeout=$3
 script="$4"
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
-
-[ -x $SCRIPT_DIR/throttling.sh ] || { echo "No throttling definitions found"; exit 1; }
-source $SCRIPT_DIR/throttling-instance.sh
+echo "CPUFRAC: $CPUFRAC"
 
 # For each project,sha, make a Docker image for it
 for line in $(cat ${projfile}); do

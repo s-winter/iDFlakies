@@ -9,20 +9,24 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
     exit
 fi
 
+csvDir="$1"
+
 PROCESS_NUM="$5"
 physProcs=$(nproc --all)
+
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 if [[ -z "$PROCESS_NUM" ]]; then
     # default: use at most a quarter of the existing cores for building
     PROCESS_NUM=$(($physProcs/4))
 fi
 
-if $(($PROCESS_NUM > $physProcs)); then
+if (($PROCESS_NUM > $physProcs)); then
     echo "More processes specified than processors available -- exiting"
     exit 1
 fi
 
-[ -x $SCRIPT_DIR/throttling-system.sh ] || { echo "No throttling definitions found"; exit 1; }
+[ -f $SCRIPT_DIR/throttling-system.sh ] || { echo "No throttling definitions found"; exit 1; }
 source $SCRIPT_DIR/throttling-system.sh
 
 echo "*******************IDFLAKIES DEBUG************************"
@@ -31,7 +35,7 @@ date
 
 # Create base Docker image if does not exist
 docker inspect detectorbase:latest > /dev/null 2>&1
-if  [ $?  == 1 ]; then
+if  [ "$?" = "1" ]; then
     docker build -t detectorbase:latest - < baseDockerfile
 fi
 
@@ -41,29 +45,31 @@ date
 
 # Create tooling Docker image if does not exist
 docker inspect toolingdetectorbase:latest > /dev/null 2>&1
-if  [ $?  == 1 ]; then
+if  [ "$?" = "1" ]; then
     docker build -t toolingdetectorbase:latest - < toolingDockerfile
 fi
 
-projectCSVs=$(find "$1" -maxdepth 1 -type f -name "*.csv")
+projectCSVs=$(find $csvDir -maxdepth 1 -type f -name "*.csv")
+echo $projectCSVs
 echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 
 # CPUCOUNT is an integer defined in throttling-system.sh
 # to make sure we don't accidentally run more parallel
 cpuGroups=$(($physProcs / $CPUCOUNT))
+echo $cpuGroups
 declare -a CPUs
 for d in {1..$cpuGroups}; do
-    mkdir eGroup$d
+    mkdir -p ${csvDir}/eGroup$d
     CPUs[$d]=$(seq -s',' $((($d-1) * $CPUCOUNT)) $(($d * $CPUCOUNT - 1)))
 done
 i=0
 for p in $(echo $projectCSVs); do
     index=$(($i % $PROCESS_NUM + 1))
-    dirName=eGroup$index
-    cp $p $dirName
-    throttlingFilePath=$dirName/throttling-${$(basename $p)%.csv}.sh
+    dirPath=${csvDir}/eGroup$index
+    cp $p $dirPath
+    throttlingFilePath=$dirPath/throttling.sh
     cp throttling-template.sh $throttlingFilePath
-    sed -i 's:\$CPUSET:$CPUs[$index]:' $throttlingFilePath
+    sed -i "s:\$CPUSET:$CPUs[$index]:" $throttlingFilePath
     ((++i))
 done
 
@@ -83,7 +89,7 @@ then
     for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
 fi
 
-find "$1" -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
+find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
 
 if [ "$THROTTLING_NIC" = 'ON' ]
 then
