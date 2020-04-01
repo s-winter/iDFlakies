@@ -18,7 +18,7 @@ script="$4"
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
 [ -x $SCRIPT_DIR/throttling.sh ] || { echo "No throttling definitions found"; exit 1; }
-source $SCRIPT_DIR/throttling.sh
+source $SCRIPT_DIR/throttling-instance.sh
 
 # For each project,sha, make a Docker image for it
 for line in $(cat ${projfile}); do
@@ -45,14 +45,7 @@ for line in $(cat ${projfile}); do
 	[ "${containerHash}" == "" ] || docker kill ${containerHash}
 	export SYSFSRESULTS_DIR_${modifiedlug}=$SCRIPT_DIR/sysfsresults/$modifiedslug
 	./wait_for_docker_completion.sh ${image} ${modifiedslug} &
-	if [ "$THROTTLING_NIC" = 'ON' ]
-	then
-	    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
-	fi
+
         docker run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${image} ${script}" # |ts "[ %F %H:%M:%.S ]"
-	if [ "$THROTTLING_NIC" = 'ON' ]
-	then
-	    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper clear $i; done
-	fi
     fi
 done
