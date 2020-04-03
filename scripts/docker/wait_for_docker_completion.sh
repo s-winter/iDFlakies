@@ -7,26 +7,26 @@
 # This mechanism currently assumes that only one docker container is running at a time. This assumption is enforced in the create_and_run_dockers.sh script.
 
 [ $1 == "" ] || [ $2 == "" ] && { echo "arg1 - Name of docker image tag"; echo "arg2 - Modified Slug"; exit 1; }
-image=$1
+image="${1}"
 
-cat <SCRIPTEND_${image} >/dev/null
+cat <SCRIPTEND_"${image}" >/dev/null
 
 echo "************* Collecting sysfs performance data *************"
 
-mkdir -p $SYSFSRESULTS_DIR
+mkdir -p "${SYSFSRESULTS_DIR}"
 #_${modifiedslug}
 
-dockerHash=$(docker ps --no-trunc | grep ${image} | tr -s ' ' | cut -d' ' -f1)
+dockerHash=$(docker ps --no-trunc | grep "${image}" | tr -s ' ' | cut -d' ' -f1)
 
 # get memory stats
 
-mkdir -p $SYSFSRESULTS_DIR/memory
-sudo cp /sys/fs/cgroup/memory/docker/$dockerHash/* $SYSFSRESULTS_DIR/memory
+mkdir -p "${SYSFSRESULTS_DIR}"/memory
+sudo cp /sys/fs/cgroup/memory/docker/"${dockerHash}"/* "${SYSFSRESULTS_DIR}"/memory
 
 # get CPU stats
 
-mkdir -p $SYSFSRESULTS_DIR/cpu
-sudo cp /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash/* $SYSFSRESULTS_DIR/cpu
+mkdir -p "${SYSFSRESULTS_DIR}"/cpu
+sudo cp /sys/fs/cgroup/cpu,cpuacct/docker/"${dockerHash}"/* "${SYSFSRESULTS_DIR}"/cpu
 
 # if you prefer a single file with all the data, try the following:
 # for f in $(ls /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash); do echo "$f: $(cat $f | sed -e 'H;${x;s/\n/,/g;s/^,//;p;};d')" >>$SYSFSRESULTS_DIR/cpustats.txt; done
@@ -34,8 +34,8 @@ sudo cp /sys/fs/cgroup/cpu,cpuacct/docker/$dockerHash/* $SYSFSRESULTS_DIR/cpu
 
 # get blkio stats
 
-mkdir -p $SYSFSRESULTS_DIR/blkio
-sudo cp /sys/fs/cgroup/blkio/docker/$dockerHash/* $SYSFSRESULTS_DIR/blkio
+mkdir -p "${SYSFSRESULTS_DIR}"/blkio
+sudo cp /sys/fs/cgroup/blkio/docker/"${dockerHash}"/* "${SYSFSRESULTS_DIR}"/blkio
 
 # get NIC stats
 # We can get all RX and TX register values from the docker container's virtual NIC: https://docs.docker.com/config/containers/runmetrics/#network-metrics
@@ -46,16 +46,16 @@ sudo cp /sys/fs/cgroup/blkio/docker/$dockerHash/* $SYSFSRESULTS_DIR/blkio
 # On my machine I have manually created the /var/run/netns directory as super user and then changed ownership to my local user.
 # Alternatively, one can do this here via sudo, which requires yet another entry in the sudoers file.
 
-TASKS=/sys/fs/cgroup/devices/docker/$dockerHash/tasks
-PID=$(head -n 1 $TASKS)
+TASKS=/sys/fs/cgroup/devices/docker/"${dockerHash}"/tasks
+PID=$(head -n 1 "${TASKS}")
 sudo mkdir -p /var/run/netns
-sudo ln -sf /proc/$PID/ns/net /var/run/netns/$dockerHash
-sudo ip netns exec $dockerHash netstat -i >>$SYSFSRESULTS_DIR/netstat.txt
-sudo rm /var/run/netns/$dockerHash
+sudo ln -sf /proc/"${PID}"/ns/net /var/run/netns/"${dockerHash}"
+sudo ip netns exec "${dockerHash}" netstat -i >>"${SYSFSRESULTS_DIR}"/netstat.txt
+sudo rm /var/run/netns/"${dockerHash}"
 
 echo "************* Finished performance data collection  *************"
 
-echo </dev/null >DATAREAD_${image}
+echo </dev/null >DATAREAD_"${image}"
 
-rm SCRIPTEND_${image}
-rm DATAREAD_${image}
+rm SCRIPTEND_"${image}"
+rm DATAREAD_"${image}"
