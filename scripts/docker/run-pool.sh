@@ -89,7 +89,7 @@ if [ "$THROTTLING_NIC" = 'ON' ]
 then
     for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
 fi
-find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -t -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
+find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
 
 if [ "$THROTTLING_NIC" = 'ON' ]
 then
