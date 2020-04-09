@@ -53,7 +53,6 @@ projectCSVs=$(find $csvDir -maxdepth 1 -type f -name "*.csv")
 echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 
 # CPUCOUNT is an integer defined in throttling-system.sh
-# to make sure we don't accidentally run more parallel
 cpuGroups=$(($physProcs / $CPUCOUNT))
 declare -a CPUs
 for d in {1..$cpuGroups}; do
@@ -84,6 +83,13 @@ then
 else
     perGroupInstances=${$((1/(($CPUFRAC * 2))))%.*}
 fi
+
+# in some scenarios we will have fewer csv files than possible eGroups
+# to avoid false positive warnings during execution, we remove the resulting empty directories
+for d in {1..$cpuGroups}; do
+    dirname=${csvDir}/eGroup${d}
+    [ -z "$(ls -A ${dirname})" ] && rmdir $dirname
+done
 
 if [ "$THROTTLING_NIC" = 'ON' ]
 then
