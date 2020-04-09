@@ -63,7 +63,7 @@ done
 i=0
 # CPUFRAC is a float defined in throttling-system.sh that specifies what fraction of CPU time the container gets
 # CPU time is *per core*, which is why we scale according to CPU count:
-CPUFRAC=$((CPUFRAC * CPUCOUNT))
+CPUFRAC=$(printf '%.1f' $((CPUFRAC * CPUCOUNT)))
 for p in $(echo $projectCSVs); do
     index=$(($i % $PROCESS_NUM + 1))
     dirPath=${csvDir}/eGroup$index
