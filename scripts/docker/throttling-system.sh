@@ -2,8 +2,8 @@
 
 # network throttling
 export THROTTLING_NIC='ON'
-export THROTTLING_NIC_DOWN=53
-export THROTTLING_NIC_UP=33
+export THROTTLING_NIC_DOWN=1500
+export THROTTLING_NIC_UP=512
 
 # IOPS
 export IOPSR=1
