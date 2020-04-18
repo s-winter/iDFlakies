@@ -31,7 +31,7 @@ cd "/home/$SCRIPT_USERNAME/${slug}"
 /home/$SCRIPT_USERNAME/$TOOL_REPO/scripts/docker/pom-modify/modify-project.sh . 1.0.1-SNAPSHOT
 
 # Set global mvn options for skipping things
-MVNOPTIONS="-Denforcer.skip=true -Drat.skip=true -Dmdep.analyze.skip=true -Dmaven.javadoc.skip=true"
+MVNOPTIONS="-o -Denforcer.skip=true -Drat.skip=true -Dmdep.analyze.skip=true -Dmaven.javadoc.skip=true"
 
 # Optional timeout... In practice our tools really shouldn't need 1hr to parse a project's surefire reports.
 # timeout 1h /home/$SCRIPT_USERNAME/apache-maven/bin/mvn testrunner:testplugin ${MVNOPTIONS} -Dtestplugin.className=edu.illinois.cs.dt.tools.utility.ModuleTestTimePlugin -fn -B -e |& tee module_test_time.log
@@ -57,7 +57,7 @@ echo "*******************REED************************"
 echo "Running testplugin for original"
 date
 
-/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn testrunner:testplugin ${MVNOPTIONS} -Ddt.randomize.rounds=${rounds} -Ddetector.detector_type=original -Ddt.detector.original_order.retry_count=1 -Ddt.detector.original_order.all_must_pass=false -Ddt.mvn_test.must_pass=false -Ddt.detector.roundsemantics.total=true -fn -B -e |& tee original.log
+/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn -o testrunner:testplugin ${MVNOPTIONS} -Ddt.randomize.rounds=${rounds} -Ddetector.detector_type=original -Ddt.detector.original_order.retry_count=1 -Ddt.detector.original_order.all_must_pass=false -Ddt.mvn_test.must_pass=false -Ddt.detector.roundsemantics.total=true -fn -B -e |& tee original.log
 
 
 # # Run the plugin, random class first, method second
