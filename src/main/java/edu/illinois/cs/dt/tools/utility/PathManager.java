@@ -7,6 +7,9 @@ import org.apache.maven.project.MavenProject;
 import java.nio.file.Path;
 
 public class PathManager {
+
+    private final string outputPath = Configuration.config().getProperty("dt.cache.absolute.path", ".dtfixingtools");
+    
     public static Path modulePath() {
         return TestPluginPlugin.mavenProject().getBasedir().toPath();
     }
@@ -31,7 +34,7 @@ public class PathManager {
     }
 
     public static Path cachePath() {
-        return modulePath().resolve(".dtfixingtools");
+        return modulePath().resolve(outputPath);
     }
 
     public static Path path(final Path relative) {
