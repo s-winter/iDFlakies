@@ -53,7 +53,6 @@ projectCSVs=$(find $csvDir -maxdepth 1 -type f -name "*.csv")
 echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 
 # CPUCOUNT is an integer defined in throttling-system.sh
-# to make sure we don't accidentally run more parallel
 # cpuGroups=$(($physProcs / $CPUCOUNT))
 # declare -a CPUs
 # for d in {1..$cpuGroups}; do
@@ -63,7 +62,7 @@ echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 # i=0
 # CPUFRAC is a float defined in throttling-system.sh that specifies what fraction of CPU time the container gets
 # CPU time is *per core*, which is why we scale according to CPU count:
-# CPUFRAC=$((CPUFRAC * CPUCOUNT))
+# CPUFRAC=$(printf '%.1f' $((CPUFRAC * CPUCOUNT)))
 # for p in $(echo $projectCSVs); do
 #     index=$(($i % $PROCESS_NUM + 1))
 #     dirPath=${csvDir}/eGroup$index
@@ -85,11 +84,18 @@ echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 #     perGroupInstances=${$((1/(($CPUFRAC * 2))))%.*}
 # fi
 
+# in some scenarios we will have fewer csv files than possible eGroups
+# to avoid false positive warnings during execution, we remove the resulting empty directories
+# for d in {1..$cpuGroups}; do
+#     dirname=${csvDir}/eGroup${d}
+#     [ -z "$(ls -A ${dirname})" ] && rmdir $dirname
+# done
+
 if [ "$THROTTLING_NIC" = 'ON' ]
 then
     for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
 fi
-
+#find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
 find $csvDir -maxdepth 1 -type f -name "*.csv" | xargs -P"$PROCESS_NUM" -I{} bash run-project-pool.sh {} "$2" "$3" "$4"
 
 if [ "$THROTTLING_NIC" = 'ON' ]
