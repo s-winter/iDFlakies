@@ -37,8 +37,6 @@ public class PathManager {
     }
 
     public static Path cachePath() {
-	TestPluginPlugin.mojo().getLog().info("Accessing cachePath: " + outputPath);
-        return modulePath().resolve(".dtfixingtools");
 	if (outputPath == "") {
 	    return modulePath().resolve(".dtfixingtools");
 	} else {
@@ -46,7 +44,7 @@ public class PathManager {
 	    try {
 		Files.createDirectories(outputPathObj);
 	    } catch (IOException e) {
-		TestPluginPlugin.mojo().getLog().debug(e.getMessage());
+		System.out.println(e.getMessage());
 	    }
 	    return outputPathObj.resolve(modulePath().getFileName());
 	}
