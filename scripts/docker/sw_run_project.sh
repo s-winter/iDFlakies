@@ -57,7 +57,7 @@ echo "*******************REED************************"
 echo "Running testplugin for original"
 date
 
-/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn -o testrunner:testplugin ${MVNOPTIONS} -Ddt.randomize.rounds=${rounds} -Ddetector.detector_type=original -Ddt.detector.original_order.retry_count=1 -Ddt.detector.original_order.all_must_pass=false -Ddt.mvn_test.must_pass=false -Ddt.detector.roundsemantics.total=true -fn -B -e |& tee original.log
+/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn -o testrunner:testplugin ${MVNOPTIONS} -Ddt.randomize.rounds=${rounds} -Ddetector.detector_type=original -Ddt.detector.original_order.retry_count=1 -Ddt.detector.original_order.all_must_pass=false -Ddt.mvn_test.must_pass=false -Ddt.detector.roundsemantics.total=true -Ddt.cache.absolute.path=/Scratch/all-output/${modifiedslug}_output -fn -B -e |& tee original.log
 
 
 # # Run the plugin, random class first, method second
