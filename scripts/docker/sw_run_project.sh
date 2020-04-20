@@ -20,6 +20,8 @@ rounds=$2
 timeout=$3
 image=$4
 
+modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
+
 # the following named pipes are used for synchronization with the host
 # right before the script ends, SCRIPTEND is signaled by the script running inside the container
 # then the host reads cgroup accounting data from sysfs and signals DATAREAD to indicate that the script can finish
