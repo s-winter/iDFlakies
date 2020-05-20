@@ -27,9 +27,10 @@ else
 fi
 
 slug=$1
-rounds=$2
-timeout=$3
-image=$4
+module=$2
+rounds=$3
+timeout=$4
+image=$5
 
 modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
 
@@ -53,13 +54,13 @@ chmod 755 /Scratch/all-output/${modifiedslug}_output/
 
 # Start the script using the $SCRIPT_USERNAME user
 echo ""$script_to_run ${slug} ${rounds} ${timeout} ${image}""
-su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${rounds} ${timeout} ${image}"
+su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${module} ${rounds} ${timeout} ${image}"
 
 # Change permissions of results and copy outside the Docker image (assume outside mounted under /Scratch)
-mkdir -p "/Scratch/all-output/${modifiedslug}_output/misc-output/"
-cp -r "/home/$SCRIPT_USERNAME/output/" "/Scratch/all-output/${modifiedslug}_output/misc-output/"
-chown -R $(id -u):$(id -g) /Scratch/all-output/${modifiedslug}_output/
-chmod -R 777 /Scratch/all-output/${modifiedslug}_output/
+# mkdir -p "/Scratch/all-output/${modifiedslug}_output/misc-output/"
+# cp -r "/home/$SCRIPT_USERNAME/output/" "/Scratch/all-output/${modifiedslug}_output/misc-output/"
+# chown -R $(id -u):$(id -g) /Scratch/all-output/${modifiedslug}_output/
+# chmod -R 777 /Scratch/all-output/${modifiedslug}_output/
 
-chown $(id -u):$(id -g) /Scratch/all-output/
-chmod 777 /Scratch/all-output/
+# chown $(id -u):$(id -g) /Scratch/all-output/
+# chmod 777 /Scratch/all-output/
