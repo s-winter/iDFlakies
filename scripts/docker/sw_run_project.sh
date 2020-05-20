@@ -62,9 +62,15 @@ date
 
 mkdir /Scratch/results-$modifiedslug-$module
 
-for i in {1..$rounds}; do
+cd $slug
+
+for i in $(seq 1 $rounds); do
     echo "Round $i/$rounds"
-    /usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
+    if [[ -d $module ]]; then
+	/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn test -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
+    else
+	/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn test ${MVNOPTIONS} |& tee mvn-test-$i.log
+    fi
     resDir="/Scratch/results-$modifiedslug-$module/$i"
     mkdir $resDir
     cp mvn-test-$i.log $resDir
