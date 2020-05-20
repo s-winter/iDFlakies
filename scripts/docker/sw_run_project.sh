@@ -64,6 +64,11 @@ mkdir /Scratch/results-$modifiedslug-$module
 
 cd $slug
 
+# remove any spurious results from prior test runs
+for report in $(find -name surefire-reports); do
+    rm -rf $report
+done
+
 for i in $(seq 1 $rounds); do
     echo "Round $i/$rounds"
     if [[ -d $module ]]; then
