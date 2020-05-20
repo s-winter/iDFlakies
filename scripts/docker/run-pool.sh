@@ -51,10 +51,13 @@ fi
 
 projectCSVs=$(find $csvDir -maxdepth 1 -type f -name "*.csv")
 typeset -A uniqueProjectCSVs
-for p in ${projectCSVs}; do
-    if [[ -z ${uniqueProjectCSVs[${p%%_output-*}] ]]
-	uniqueProjectCSVs[${p%%_output-*}]=$p
-echo $uniqueProjectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
+for p in ${=projectCSVs}; do
+    echo $p
+    if [[ -z ${uniqueProjectCSVs["${p%%_output-*}"]} ]]; then
+    	   uniqueProjectCSVs["${p%%_output-*}"]=$p
+       fi
+done
+printf "%s\n" "${uniqueProjectCSVs[@]}" | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 
 # CPUCOUNT is an integer defined in throttling-system.sh
 # cpuGroups=$(($physProcs / $CPUCOUNT))
@@ -100,6 +103,7 @@ echo $uniqueProjectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 #     for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
 # fi
 #find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
+
 find $csvDir -maxdepth 1 -type f -name "*.csv" | xargs -P"$PROCESS_NUM" -I{} bash run-project-pool.sh {} "$2" "$3" "$4"
 
 # if [ "$THROTTLING_NIC" = 'ON' ]

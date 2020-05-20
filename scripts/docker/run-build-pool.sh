@@ -5,6 +5,8 @@ if [[ $1 == "" ]]; then
     exit
 fi
 
+echo $1
+
 mkdir -p "logs"
 fname="logs/$(basename $1 .csv)-log.txt"
 
