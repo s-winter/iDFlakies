@@ -1,7 +1,7 @@
 #!/usr/bin/env zsh
 
 if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
-    echo "arg1 - Path to CSV file with project,sha"
+    echo "arg1 - Path to CSV file with project,sha,module"
     echo "arg2 - Number of rounds"
     echo "arg3 - Timeout in seconds"
     echo "arg4 - The script to run (Optional)"
@@ -26,8 +26,8 @@ if (($PROCESS_NUM > $physProcs)); then
     exit 1
 fi
 
-[ -f $SCRIPT_DIR/throttling-system.sh ] || { echo "No throttling definitions found"; exit 1; }
-source $SCRIPT_DIR/throttling-system.sh
+# [ -f $SCRIPT_DIR/throttling-system.sh ] || { echo "No throttling definitions found"; exit 1; }
+# source $SCRIPT_DIR/throttling-system.sh
 
 echo "*******************IDFLAKIES DEBUG************************"
 echo "Making base image"
@@ -39,18 +39,22 @@ if  [ "$?" = "1" ]; then
     docker build -t detectorbase:latest - < baseDockerfile
 fi
 
-echo "*******************IDFLAKIES DEBUG************************"
-echo "Making tooling image"
-date
+# echo "*******************IDFLAKIES DEBUG************************"
+# echo "Making tooling image"
+# date
 
 # Create tooling Docker image if does not exist
-docker inspect toolingdetectorbase:latest > /dev/null 2>&1
-if  [ "$?" = "1" ]; then
-    docker build -t toolingdetectorbase:latest - < toolingDockerfile
-fi
+# docker inspect toolingdetectorbase:latest > /dev/null 2>&1
+# if  [ "$?" = "1" ]; then
+#     docker build -t toolingdetectorbase:latest - < toolingDockerfile
+# fi
 
 projectCSVs=$(find $csvDir -maxdepth 1 -type f -name "*.csv")
-echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
+typeset -A uniqueProjectCSVs
+for p in ${projectCSVs}; do
+    if [[ -z ${uniqueProjectCSVs[${p%%_output-*}] ]]
+	uniqueProjectCSVs[${p%%_output-*}]=$p
+echo $uniqueProjectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 
 # CPUCOUNT is an integer defined in throttling-system.sh
 # cpuGroups=$(($physProcs / $CPUCOUNT))
@@ -79,7 +83,7 @@ echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 # we cut off everything after the decimal dot to get the number of instances we can run on each CPU group
 # if (($CPUFRAC > .5));
 # then
-    perGroupInstances=1
+#    perGroupInstances=1
 # else
 #     perGroupInstances=${$((1/(($CPUFRAC * 2))))%.*}
 # fi
@@ -91,14 +95,14 @@ echo $projectCSVs | xargs -P"$PROCESS_NUM" -I{} bash run-build-pool.sh {}
 #     [ -z "$(ls -A ${dirname})" ] && rmdir $dirname
 # done
 
-if [ "$THROTTLING_NIC" = 'ON' ]
-then
-    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
-fi
+# if [ "$THROTTLING_NIC" = 'ON' ]
+# then
+#     for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper $i ${THROTTLING_NIC_DOWN} ${THROTTLING_NIC_UP}; done
+# fi
 #find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
 find $csvDir -maxdepth 1 -type f -name "*.csv" | xargs -P"$PROCESS_NUM" -I{} bash run-project-pool.sh {} "$2" "$3" "$4"
 
-if [ "$THROTTLING_NIC" = 'ON' ]
-then
-    for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper clear $i; done
-fi
+# if [ "$THROTTLING_NIC" = 'ON' ]
+# then
+#     for i in $(sudo ifconfig |grep '.*: ' |cut -d':' -f1); do sudo wondershaper clear $i; done
+# fi
