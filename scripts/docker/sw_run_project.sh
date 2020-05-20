@@ -63,11 +63,15 @@ date
 mkdir /Scratch/results-$modifiedslug-$module
 
 for i in {1..$rounds}; do
+    echo "Round $i/$rounds"
     /usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
     resDir="/Scratch/results-$modifiedslug-$module/$i"
     mkdir $resDir
     cp mvn-test-$i.log $resDir
-    cp -r **/target/surefire-reports $resDir
+    for report in $(find -name surefire-reports); do
+	cp -r --parents $report $resDir
+	rm -rf $report
+    done
 done
 # # Run the plugin, random class first, method second
 # echo "*******************REED************************"
