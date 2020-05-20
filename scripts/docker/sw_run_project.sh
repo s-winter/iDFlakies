@@ -26,8 +26,8 @@ modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
 # the following named pipes are used for synchronization with the host
 # right before the script ends, SCRIPTEND is signaled by the script running inside the container
 # then the host reads cgroup accounting data from sysfs and signals DATAREAD to indicate that the script can finish
-[ -w /Scratch/SCRIPTEND_${image} ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
-[ -r /Scratch/DATAREAD_${image} ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
+# [ -w /Scratch/SCRIPTEND_${image} ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
+# [ -r /Scratch/DATAREAD_${image} ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
 
 # Incorporate tooling into the project, using Java XML parsing
 # cd "/home/$SCRIPT_USERNAME/${slug}"
