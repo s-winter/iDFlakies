@@ -9,7 +9,7 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
 fi
 
 mkdir -p "logs"
-fname="logs/$(basename $1 .csv)-log.txt"
+fname="logs/$(basename $1 .csv)-runlog.txt"
 
 echo "Logging to $fname"
 bash create_and_run_dockers.sh $@ &>> $fname

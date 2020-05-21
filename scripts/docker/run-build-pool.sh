@@ -8,7 +8,7 @@ fi
 echo $1
 
 mkdir -p "logs"
-fname="logs/$(basename $1 .csv)-log.txt"
+fname="logs/$(basename $1 .csv)-buildlog.txt"
 
 echo "Logging to $fname"
 bash build_docker_image-pool.sh $@ &> $fname
