@@ -157,7 +157,7 @@ for ((i=roundsStart;i<roundsStart+rounds;i++)); do
     for f in $(find -name "TEST*.xml"); do mv $f ${RESULTSDIR}/$i; done
 done
 
-mv rounds-test-results.csv ${RESULTSDIR}/
+mv rounds-test-results.csv ${RESULTSDIR}/rounds-test-results.$i.csv
 
 echo "*******************REED************************"
 echo "Finished run_mvn_surefire.sh"
