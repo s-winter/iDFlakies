@@ -13,6 +13,7 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
   echo "arg3 - Timeout in seconds"
   echo "arg4 - Test name (Optional)"
   echo "arg5 - Round index to start from"
+  echo "arg6 - runId"
   exit
 fi
 
@@ -21,6 +22,7 @@ rounds=$2
 timeout=$3
 fullTestName=$4
 roundsStart=$5
+runId=$6
 
 [[ -z $roundsStart ]] && roundsStart=1
 
@@ -28,6 +30,14 @@ echo "Slug: ${slug}"
 echo "Rounds: ${rounds}"
 echo "Timeout: ${timeout}"
 echo "fullTestName: ${fullTestName}"
+echo "roundsStart: ${roundsStart}"
+echo "runId: ${runId}"
+
+# the following named pipes are used for synchronization with the host
+# right before the script ends, SCRIPTEND is signaled by the script running inside the container
+# then the host reads cgroup accounting data from sysfs and signals DATAREAD to indicate that the script can finish
+[ -w /Scratch/SCRIPTEND_${runId} ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
+[ -r /Scratch/DATAREAD_${runId} ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
 
 export PATH=/home/$SCRIPT_USERNAME/apache-maven/bin:$PATH
 
@@ -150,3 +160,7 @@ mv rounds-test-results.csv ${RESULTSDIR}/isolation
 echo "*******************REED************************"
 echo "Finished run_mvn_surefire.sh"
 date
+
+synchronization with docker host; see top of this file where existence of these pipes is checked for more details
+echo </dev/null >/Scratch/SCRIPTEND_${runId}
+cat </Scratch/DATAREAD_${runId} >/dev/null

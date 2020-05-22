@@ -5,6 +5,7 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
     echo "arg2 - Number of rounds"
     echo "arg3 - Timeout in seconds"
     echo "arg4 - The script to run (Optional)"
+    echo "arg5 - roundsIndex"
     exit
 fi
 
@@ -14,6 +15,7 @@ projfile=$1
 rounds=$2
 timeout=$3
 script="$4"
+roundsIndex=$5
 
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 
@@ -29,21 +31,15 @@ for line in $(cat ${projfile}); do
     then
         echo "${image} NOT BUILT PROPERLY, LIKELY TESTS FAILED"
     else
-	if [ -p SCRIPTEND_${image} -o -p DATAREAD_${image} ]
-	then
-	    echo "Named pipes exist. Previous run has likely terminated abnormally! Removing now to continue..."
-	    rm SCRIPTEND_${image}
-	    rm DATAREAD_${image}
-	fi
-	mkfifo --mode=777 SCRIPTEND_${image}
-	mkfifo --mode=777 DATAREAD_${image}
+	export runId="${modifiedslug}_$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')"
+	mkfifo --mode=777 SCRIPTEND_${runId}
+	mkfifo --mode=777 DATAREAD_${runId}
 	# kill any running docker container for the same image before running this one
-	containerHash=$(docker ps | grep ${image} | tr -s ' ' | cut -d' ' -f1)
-	[ "${containerHash}" == "" ] || docker kill ${containerHash}
+	# containerHash=$(docker ps | grep ${image} | tr -s ' ' | cut -d' ' -f1)
+	# [ "${containerHash}" == "" ] || docker kill ${containerHash}
 	#export SYSFSRESULTS_DIR_${modifiedlug}=$SCRIPT_DIR/sysfsresults/$modifiedslug
-	export SYSFSRESULTS_DIR=$SCRIPT_DIR/sysfsresults/$modifiedslug
+	export SYSFSRESULTS_DIR="/Scratch/sysfsresults/${runId}"
 	./wait_for_docker_completion.sh ${image} ${modifiedslug} &
-	echo "Running with ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS}"
-        /usr/bin/time -v docker run -t --rm ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${image} ${script}" # |ts "[ %F %H:%M:%.S ]"
+        /usr/bin/time -v docker run -t --rm --name "${runId}" -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${image} ${script} ${roundsIndex} ${runId}" # |ts "[ %F %H:%M:%.S ]"
     fi
 done

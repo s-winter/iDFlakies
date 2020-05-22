@@ -9,14 +9,14 @@
 [ $1 == "" ] || [ $2 == "" ] && { echo "arg1 - Name of docker image tag"; echo "arg2 - Modified Slug"; exit 1; }
 image="${1}"
 
-cat <SCRIPTEND_"${image}" >/dev/null
+cat <SCRIPTEND_"${runId}" >/dev/null
 
 echo "************* Collecting sysfs performance data *************"
 
 mkdir -p "${SYSFSRESULTS_DIR}"
 #_${modifiedslug}
 
-dockerHash=$(docker ps --no-trunc | grep "${image}" | tr -s ' ' | cut -d' ' -f1)
+dockerHash=$(docker ps --no-trunc | grep "${runId}" | tr -s ' ' | cut -d' ' -f1)
 
 # get memory stats
 
@@ -55,7 +55,7 @@ sudo rm /var/run/netns/"${dockerHash}"
 
 echo "************* Finished performance data collection  *************"
 
-echo </dev/null >DATAREAD_"${image}"
+echo </dev/null >DATAREAD_"${runId}"
 
-rm SCRIPTEND_"${image}"
-rm DATAREAD_"${image}"
+rm SCRIPTEND_"${runId}"
+rm DATAREAD_"${runId}"

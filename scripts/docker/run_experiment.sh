@@ -12,6 +12,8 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]] || [[ $4 == "" ]]; then
     echo "arg3 - Timeout in seconds"
     echo "arg4 - docker image name"
     echo "arg5 - Script to run (Optional)"
+    echo "arg6 - Script to run parameter: roundIndex"
+    echo "arg7 - Script to run parameter: runId"
     exit
 fi
 
@@ -31,6 +33,8 @@ module=$2
 rounds=$3
 timeout=$4
 image=$5
+roundIndex=$6
+runId=$7
 
 modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
 
@@ -54,7 +58,7 @@ chmod 755 /Scratch/all-output/${modifiedslug}_output/
 
 # Start the script using the $SCRIPT_USERNAME user
 echo ""$script_to_run ${slug} ${rounds} ${timeout} ${image}""
-su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${module} ${rounds} ${timeout} ${image}"
+su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${module} ${rounds} ${timeout} ${image} ${roundIndex} ${runId}"
 
 # Change permissions of results and copy outside the Docker image (assume outside mounted under /Scratch)
 # mkdir -p "/Scratch/all-output/${modifiedslug}_output/misc-output/"

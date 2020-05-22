@@ -16,7 +16,7 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]] || [[ $4 == "" ]]; then
 fi
 
 slug=$1
-module=$2
+class=$2
 rounds=$3
 timeout=$4
 image=$5
@@ -26,8 +26,8 @@ modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
 # the following named pipes are used for synchronization with the host
 # right before the script ends, SCRIPTEND is signaled by the script running inside the container
 # then the host reads cgroup accounting data from sysfs and signals DATAREAD to indicate that the script can finish
-# [ -w /Scratch/SCRIPTEND_${image} ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
-# [ -r /Scratch/DATAREAD_${image} ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
+[ -w /Scratch/SCRIPTEND_${image} ] || { echo "SCRIPTEND named pipe for host synchronization does not exist or is not writable"; exit 1; }
+[ -r /Scratch/DATAREAD_${image} ] || { echo "DATAREAD named pipe for host synchronization does not exist or is not writable"; exit 1; }
 
 # Incorporate tooling into the project, using Java XML parsing
 # cd "/home/$SCRIPT_USERNAME/${slug}"
@@ -54,6 +54,19 @@ MVNOPTIONS="-Ddependency-check.skip=true -Dgpg.skip=true -DfailIfNoTests=false -
 
 # timeout 4000s /home/$SCRIPT_USERNAME/apache-maven/bin/mvn testrunner:testplugin ${MVNOPTIONS} -Ddetector.timeout=4000 -Ddt.randomize.rounds=${rounds} -Ddetector.detector_type=reverse-class -fn -B -e |& tee reverse_class.log
 
+classloc=$(find -name $class.java)
+if [[ -z $classloc ]]; then
+    echo "exit: 100 No test class at this commit."
+    exit 100
+fi
+
+while [[ "$module" != "." && "$module" != "" ]]; do
+    module=$(echo $module | rev | cut -d'/' -f2- | rev)
+    echo "Checking for pom at: $module"
+    if [[ -f $module/pom.xml ]]; then
+	break;
+    fi
+done
 
 # Run the plugin, original order
 echo "*******************REED************************"
@@ -117,6 +130,6 @@ echo "*******************REED************************"
 echo "Finished run_project.sh"
 date
 
-# synchronization with docker host; see top of this file where existence of these pipes is checked for more details
-# echo </dev/null >/Scratch/SCRIPTEND_${image}
-# cat </Scratch/DATAREAD_${image} >/dev/null
+synchronization with docker host; see top of this file where existence of these pipes is checked for more details
+echo </dev/null >/Scratch/SCRIPTEND_${image}
+cat </Scratch/DATAREAD_${image} >/dev/null
