@@ -148,14 +148,16 @@ for ((i=roundsStart;i<roundsStart+rounds;i++)); do
     echo "surefire-reports that were not deleted: $(find . -name surefire-reports -type d)"
 
     mvn test -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
-    for f in $(find -name "TEST*.xml"); do /Scratch/python parse_surefire_report.py $f $i; done >> rounds-test-results.csv
+    for f in $(find -name "TEST*.xml"); do python /Scratch/parse_surefire_report.py $f $i; done >> rounds-test-results.csv
 
     mkdir -p ${RESULTSDIR}/$i
     mv mvn-test-$i.log ${RESULTSDIR}/$i
+    echo "result files..."
+    ls ${RESULTSDIR}/$i
     for f in $(find -name "TEST*.xml"); do mv $f ${RESULTSDIR}/$i; done
 done
 
-mv rounds-test-results.csv ${RESULTSDIR}/isolation
+mv rounds-test-results.csv ${RESULTSDIR}/
 
 echo "*******************REED************************"
 echo "Finished run_mvn_surefire.sh"
