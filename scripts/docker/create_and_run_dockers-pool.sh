@@ -32,7 +32,7 @@ for line in $(cat ${projfile}); do
     then
         echo "${image} NOT BUILT PROPERLY, LIKELY TESTS FAILED"
     else
-	export runId="${modifiedslug}_$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')"
+	#export runId="${modifiedslug}_$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 13 ; echo '')"
 	mkfifo --mode=777 SCRIPTEND_${runId}
 	mkfifo --mode=777 DATAREAD_${runId}
 	# kill any running docker container for the same image before running this one
