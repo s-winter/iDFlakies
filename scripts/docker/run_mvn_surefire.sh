@@ -140,7 +140,7 @@ pip install lxml
 # fullClass="$(echo $fullTestName | rev | cut -d. -f2- | rev)"
 # testName="$(echo $fullTestName | rev | cut -d. -f1 | rev )"
 
-mkdir -p ${RESULTSDIR}/isolation
+#mkdir -p ${RESULTSDIR}/isolation
 echo "" > rounds-test-results.csv
 for ((i=roundsStart;i<roundsStart+rounds;i++)); do
     echo "Iteration: $((i-roundsStart+1)) / $rounds"

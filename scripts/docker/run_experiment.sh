@@ -38,9 +38,9 @@ runId=$7
 
 modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
 
-mkdir -p /Scratch/all-output/${modifiedslug}_output/
-chown "$SCRIPT_USERNAME" /Scratch/all-output/${modifiedslug}_output/
-chmod 755 /Scratch/all-output/${modifiedslug}_output/
+#mkdir -p /Scratch/all-output/${modifiedslug}_output/
+# chown "$SCRIPT_USERNAME" /Scratch/all-output/${modifiedslug}_output/
+# chmod 755 /Scratch/all-output/${modifiedslug}_output/
 
 # Update all tooling
 # su - "$SCRIPT_USERNAME" -c "cd /home/$SCRIPT_USERNAME/$TOOL_REPO/; git pull"
