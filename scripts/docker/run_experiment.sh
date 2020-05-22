@@ -29,7 +29,7 @@ else
 fi
 
 slug=$1
-module=$2
+testCase=$2
 rounds=$3
 timeout=$4
 image=$5
@@ -58,7 +58,7 @@ chmod 755 /Scratch/all-output/${modifiedslug}_output/
 
 # Start the script using the $SCRIPT_USERNAME user
 echo ""$script_to_run ${slug} ${rounds} ${timeout} ${image}""
-su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${module} ${rounds} ${timeout} ${image} ${roundIndex} ${runId}"
+su - "$SCRIPT_USERNAME" -c "$script_to_run ${slug} ${rounds} ${timeout} ${testCase} ${roundIndex} ${runId}"
 
 # Change permissions of results and copy outside the Docker image (assume outside mounted under /Scratch)
 # mkdir -p "/Scratch/all-output/${modifiedslug}_output/misc-output/"

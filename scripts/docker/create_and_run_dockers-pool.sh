@@ -23,6 +23,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 for line in $(cat ${projfile}); do
     slug=$(echo ${line} | cut -d',' -f1 | rev | cut -d'/' -f1-2 | rev)
     sha=$(echo ${line} | cut -d',' -f2)
+    testName=$(echo $line | cut -d, -f3)
     modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
     image=detector-${modifiedslug}:latest
     # Run the Docker image if it exists
@@ -40,6 +41,6 @@ for line in $(cat ${projfile}); do
 	#export SYSFSRESULTS_DIR_${modifiedlug}=$SCRIPT_DIR/sysfsresults/$modifiedslug
 	export SYSFSRESULTS_DIR="/Scratch/sysfsresults/${runId}"
 	./wait_for_docker_completion.sh ${image} ${modifiedslug} &
-        /usr/bin/time -v docker run -t --rm --name "${runId}" -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${rounds} ${timeout} ${image} ${script} ${roundsIndex} ${runId}" # |ts "[ %F %H:%M:%.S ]"
+        /usr/bin/time -v docker run -t --rm --name "${runId}" -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${testName} ${rounds} ${timeout} ${image} ${script} ${roundsIndex} ${runId} " # |ts "[ %F %H:%M:%.S ]"
     fi
 done
