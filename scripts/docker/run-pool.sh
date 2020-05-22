@@ -6,6 +6,7 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
     echo "arg3 - Timeout in seconds"
     echo "arg4 - The script to run (Optional)"
     echo "arg5 - Number of processes to run at the same time (Optional)"
+    echo "arg6 - rounds index to start from"
     exit
 fi
 
@@ -104,7 +105,7 @@ printf "%s\n" "${uniqueProjectCSVs[@]}" | xargs -P"$PROCESS_NUM" -I{} bash run-b
 # fi
 #find $csvDir -maxdepth 1 -type d -name "eGroup*" | xargs -P"$cpuGroups" -I{} bash run-project-pool-wrapper.sh {} "$2" "$3" "$4" "$perGroupInstances"
 
-find $csvDir -maxdepth 1 -type f -name "*.csv" | xargs -P"$PROCESS_NUM" -I{} bash run-project-pool.sh {} "$2" "$3" "$4"
+find $csvDir -maxdepth 1 -type f -name "*.csv" | xargs -P"$PROCESS_NUM" -I{} bash run-project-pool.sh {} "$2" "$3" "$4" "$6"
 
 # if [ "$THROTTLING_NIC" = 'ON' ]
 # then
