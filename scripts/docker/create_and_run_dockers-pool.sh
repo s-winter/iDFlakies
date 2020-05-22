@@ -23,7 +23,7 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
 for line in $(cat ${projfile}); do
     slug=$(echo ${line} | cut -d',' -f1 | rev | cut -d'/' -f1-2 | rev)
     sha=$(echo ${line} | cut -d',' -f2)
-    testName=$(echo $line | cut -d, -f3)
+    testName=$(echo $line | cut -d, -f4)
     modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
     image=detector-${modifiedslug}:latest
     # Run the Docker image if it exists
