@@ -147,7 +147,7 @@ for ((i=roundsStart;i<roundsStart+rounds;i++)); do
     find . -name surefire-reports -type d -exec rm -r {} +
     echo "surefire-reports that were not deleted: $(find . -name surefire-reports -type d)"
 
-    mvn test -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
+    /usr/bin/time -v mvn test -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
     for f in $(find -name "TEST*.xml"); do python /Scratch/parse_surefire_report.py $f $i; done >> rounds-test-results.csv
 
     mkdir -p ${RESULTSDIR}/$i
