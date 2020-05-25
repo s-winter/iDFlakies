@@ -45,9 +45,6 @@ cd /home/$SCRIPT_USERNAME/
 
 modifiedslug=$(echo ${slug} | sed 's;/;.;' | tr '[:upper:]' '[:lower:]')
 
-RESULTSDIR=/Scratch/output/$modifiedslug
-mkdir -p ${RESULTSDIR}
-
 cd /home/$SCRIPT_USERNAME/${slug}
 
 MVNOPTIONS="-Ddependency-check.skip=true -Dgpg.skip=true -DfailIfNoTests=false -Dskip.installnodenpm -Dskip.npm -Dskip.yarn -Dlicense.skip -Dcheckstyle.skip -Drat.skip -Denforcer.skip -Danimal.sniffer.skip -Dmaven.javadoc.skip -Dfindbugs.skip -Dwarbucks.skip -Dmodernizer.skip -Dimpsort.skip -Dmdep.analyze.skip -Dpgpverify.skip -Dxml.skip"
@@ -85,6 +82,9 @@ while [[ "$module" != "." && "$module" != "" ]]; do
     fi
 done
 echo "Location of module: $module"
+
+RESULTSDIR=/Scratch/output/$modifiedslug_$module
+mkdir -p ${RESULTSDIR}
 
 # if [[ "$slug" == "apache/incubator-dubbo" ]]; then
 #     chown -R $USER .
