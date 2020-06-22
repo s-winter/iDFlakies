@@ -41,6 +41,6 @@ for line in $(cat ${projfile}); do
 	#export SYSFSRESULTS_DIR_${modifiedlug}=$SCRIPT_DIR/sysfsresults/$modifiedslug
 	export SYSFSRESULTS_DIR="sysfsresults/${runId}"
 	./wait_for_docker_completion.sh ${image} ${modifiedslug} &
-        /usr/bin/time -v docker run -t --rm --name "${runId}" -v ${SCRIPT_DIR}:/Scratch ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${testName} ${rounds} ${timeout} ${script} ${roundsIndex} ${runId} " # |ts "[ %F %H:%M:%.S ]"
+        /usr/bin/time -v docker run -t --rm --name "${runId}" -v ${SCRIPT_DIR}:/Scratch ${THROTTLING_CPUSET} ${THROTTLING_CPUS} ${THROTTLING_MEM} ${THROTTLING_SWAP} ${THROTTLING_OOM} ${THROTTLING_READ_IOPS} ${THROTTLING_WRITE_IOPS} ${THROTTLING_READ_BPS} ${THROTTLING_WRITE_BPS} ${image} /bin/bash -xc "/Scratch/run_experiment.sh ${slug} ${testName} ${rounds} ${timeout} ${script} ${roundsIndex} ${runId} " # |ts "[ %F %H:%M:%.S ]"
     fi
 done
