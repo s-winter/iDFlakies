@@ -9,14 +9,14 @@ parser.add_argument('xmlFile')
 args = parser.parse_args()
 
 pomFilePath = os.path.abspath(args.xmlFile)
-print(pomFilePath)
+# print(pomFilePath)
 splitPath = pomFilePath.strip('/').split('/')
-print(splitPath)
+# print(splitPath)
 moduleName = splitPath[-2]
-print(moduleName)
+# print(moduleName)
 projectName = "{}.{}".format(splitPath[splitPath.index('idflakies') + 1],
                              splitPath[splitPath.index('idflakies') + 2])
-print(projectName)
+# print(projectName)
 
 pomFile = open(args.xmlFile, "r+")
 contents = pomFile.read()
@@ -27,6 +27,8 @@ groupIdTag = soup.new_tag("groupId")
 groupIdTag.string = "org.apache.maven.plugins"
 artifactIdTag = soup.new_tag("artifactId")
 artifactIdTag.string = "maven-surefire-plugin"
+versionTag = soup.new_tag("version")
+versionTag.string = "2.22.0"
 configurationTag = soup.new_tag("configuration")
 reportsDirectoryTag = soup.new_tag("reportsDirectory")
 reportsDirectoryString = "/Scratch/{}_output/{}/${{env.mvnTestRound}}".format(projectName, moduleName)
@@ -35,6 +37,7 @@ reportsDirectoryTag.string = reportsDirectoryString
 configurationTag.append(reportsDirectoryTag)
 tagToAdd.append(groupIdTag)
 tagToAdd.append(artifactIdTag)
+tagToAdd.append(versionTag)
 tagToAdd.append(configurationTag)
 
 allSurefirePlugins = soup.project.build.plugins.find("artifactId", string="maven-surefire-plugin")
