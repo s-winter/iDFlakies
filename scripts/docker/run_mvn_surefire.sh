@@ -163,6 +163,6 @@ echo "*******************REED************************"
 echo "Finished run_mvn_surefire.sh"
 date
 
-synchronization with docker host; see top of this file where existence of these pipes is checked for more details
+# synchronization with docker host; see top of this file where existence of these pipes is checked for more details
 echo </dev/null >/Scratch/SCRIPTEND_${runId}
 cat </Scratch/DATAREAD_${runId} >/dev/null
