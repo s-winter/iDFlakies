@@ -15,7 +15,7 @@ csvDir="$1"
 PROCESS_NUM="$5"
 physProcs=$(nproc --all)
 
-SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null && pwd )"
+SCRIPT_DIR="${0:a:h}"
 
 if [[ -z "$PROCESS_NUM" ]]; then
     # default: use at most a quarter of the existing cores for building
@@ -45,10 +45,10 @@ echo "Making tooling image"
 date
 
 # Create tooling Docker image if does not exist
-docker inspect toolingdetectorbase:latest > /dev/null 2>&1
-if  [ "$?" = "1" ]; then
-    docker build -t toolingdetectorbase:latest - < toolingDockerfile
-fi
+# docker inspect toolingdetectorbase:latest > /dev/null 2>&1
+# if  [ "$?" = "1" ]; then
+#     docker build -t toolingdetectorbase:latest - < toolingDockerfile
+# fi
 
 projectCSVs=$(find $csvDir -maxdepth 1 -type f -name "*.csv")
 typeset -A uniqueProjectCSVs
