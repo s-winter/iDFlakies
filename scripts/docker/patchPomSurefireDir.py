@@ -55,13 +55,13 @@ else:
         print("WARNING: {} surefire plugins found. Chosing the first one..."
               .format(len(allSurefirePlugins)))
     surefirePlugin = soup.project.build.plugins.find("artifactId", string="maven-surefire-plugin").find_parent("plugin")
-    if (surefirePlugin.configuration.reportsDirectory is None):
-        if (surefirePlugin.configuration is None):
-            surefirePlugin.append(configurationTag)
-        else:
-            surefirePlugin.configuration.append(reportsDirectoryTag)
+    if (surefirePlugin.configuration is None):
+        surefirePlugin.append(configurationTag)
     else:
-        surefirePlugin.configuration.reportsDirectory.string = reportsDirectoryString
+        if (surefirePlugin.configuration.reportsDirectory is None):
+            surefirePlugin.configuration.append(reportsDirectoryTag)
+        else:
+            surefirePlugin.configuration.reportsDirectory.string = reportsDirectoryString
 
 pomFile.close()
 
