@@ -4,7 +4,6 @@
 # The synchronization of the execution order <docker workload finishes, sysfs is read, docker exits> is ensured via two named pipes, SCRIPTEND and DATAREAD.
 # These pipes are created in the create_and_run_dockers.sh script, from which this script is called.
 # The other ends of the pipes are read/written in the sw_run_project.sh script, i.e., for this to work that script needs to be passed to create_and_run_dockers.sh as the script to run inside docker.
-# This mechanism currently assumes that only one docker container is running at a time. This assumption is enforced in the create_and_run_dockers.sh script.
 
 [ $1 == "" ] || [ $2 == "" ] && { echo "arg1 - Name of docker image tag"; echo "arg2 - Modified Slug"; exit 1; }
 image="${1}"

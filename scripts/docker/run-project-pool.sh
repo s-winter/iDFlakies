@@ -5,6 +5,7 @@ if [[ $1 == "" ]] || [[ $2 == "" ]] || [[ $3 == "" ]]; then
     echo "arg2 - Number of rounds"
     echo "arg3 - Timeout in seconds"
     echo "arg4 - The script to run (Optional)"
+    echo "arg5 - Index to start counting rounds from"
     exit
 fi
 
