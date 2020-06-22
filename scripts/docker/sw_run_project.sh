@@ -84,6 +84,7 @@ done
 
 for i in $(seq 1 $rounds); do
     echo "Round $i/$rounds"
+    export mvnTestRound=$i
     /usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn test -pl $module ${MVNOPTIONS} |& tee mvn-test-$i.log
     if [[ ${PIPESTATUS[0]} -ne 0 ]]; then
 	/usr/bin/time -v /home/$SCRIPT_USERNAME/apache-maven/bin/mvn test ${MVNOPTIONS} |& tee mvn-test-$i.log
